@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: NormalFishSO
   m_EditorClassIdentifier: 
   defaultSpeed: 43
-  defaultPullSpeed: 50
+  defaultPullSpeed: 45
   escapeRate: 10

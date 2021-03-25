@@ -50,12 +50,28 @@ public class GameEventManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Space) && pushStart == false)
         {
+            flag.SetFlag("HardMode", false);
             pushStart = true;
             titlePanel.GetComponent<Animator>().Play("FadeTitleAnimation");
             // titlePanel.SetActive(false);
             sound.StopBGM();
             // StartCoroutine(GameEvent());
             StartCoroutine(ExecuteEvent(textAsset.text));
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            flag.SetFlag("HardMode", false);
+            SceneLoader.instance.LoadScene("MainFishing");
+        }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            flag.SetFlag("HardMode", true);
+            SceneLoader.instance.LoadScene("MainFishing");
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            flag.SetFlag("HardMode", false);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainStory");
         }
     }
 
@@ -94,5 +110,9 @@ public class GameEventManager : MonoBehaviour
                 result = null;
             }
         }
+        yield return null;
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+        PlayerPrefs.SetInt("CLEAR", 1);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainStory");
     }
 }

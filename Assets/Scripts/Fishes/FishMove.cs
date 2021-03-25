@@ -18,6 +18,8 @@ public class FishMove : MonoBehaviour
     [SerializeField] Transform floorPoint = default;
 
     [SerializeField] FishSO fishSO = default;
+    [SerializeField] FishSO normalFishSO = default;
+    [SerializeField] FishSO hardFishSO = default;
     [SerializeField] Animator animator = default;
     [SerializeField] GameObject model = default;
 
@@ -29,6 +31,7 @@ public class FishMove : MonoBehaviour
     AudioSource audioSource;
     [SerializeField] AudioClip audioClip = default;
     [SerializeField] AudioClip moveAudioClip = default;
+    [SerializeField] GameObject moveFishingLine = default;
 
     int escapeRate;
     // 引っ張ら
@@ -101,11 +104,31 @@ public class FishMove : MonoBehaviour
 
     private void LoadData()
     {
-        defaultSpeed = fishSO.defaultSpeed;
-        defaultPullSpeed = fishSO.defaultPullSpeed;
+        FishSO[] fishSOs = new FishSO[]
+        {
+            fishSO,
+            fishSO,
+            fishSO,
+            fishSO,
+            fishSO,
+            normalFishSO,
+            normalFishSO,
+            hardFishSO,
+        };
+        FishSO tmp = null;
+        if (flagSO.GetFlag("HardMode"))
+        {
+            tmp = hardFishSO;
+        }
+        else
+        {
+            tmp = fishSOs[Random.Range(0, fishSOs.Length)];
+        }
+        defaultSpeed = tmp.defaultSpeed;
+        defaultPullSpeed = tmp.defaultPullSpeed;
         speed = defaultSpeed;
         pullSpeed = defaultPullSpeed;
-        escapeRate = fishSO.escapeRate;
+        escapeRate = tmp.escapeRate;
     }
 
     private void Start()
@@ -196,10 +219,14 @@ public class FishMove : MonoBehaviour
             case Status.Move:
                 if (playerInput.OnSpace)
                 {
+                    fishingLine.SetActive(true);
+                    moveFishingLine.SetActive(false);
                     Rampage();
                 }
                 else
                 {
+                    fishingLine.SetActive(false);
+                    moveFishingLine.SetActive(true);
                     Move();
                 }
                 break;
@@ -207,6 +234,8 @@ public class FishMove : MonoBehaviour
                 // 一定時間は動く
                 if (playerInput.OnSpace)
                 {
+                    fishingLine.SetActive(true);
+                    moveFishingLine.SetActive(false);
                     Pulled();
                 }
                 float moveSpeed = Mathf.Sqrt(Mathf.Max(0.5f, pullSpeed));
@@ -246,12 +275,12 @@ public class FishMove : MonoBehaviour
             return;
         }
         isRampage = true;
-        Debug.Log($"逃げるゲージ:{escapeValue}");
         StartCoroutine(RampageEffect());
     }
 
     IEnumerator RampageEffect()
     {
+        fishingLine.transform.localPosition = new Vector3(12, 4.64f, 0);
         model.transform.localScale = new Vector3(1, 1, 1);
         model.transform.localPosition = new Vector3(2, 0, 0);
         animator.enabled = false;
@@ -262,6 +291,13 @@ public class FishMove : MonoBehaviour
             audioSource.PlayOneShot(audioClip);
         }
         yield return new WaitForSeconds(0.1f);
+        fishingLine.SetActive(false);
+        moveFishingLine.SetActive(true);
+        animator.enabled = true;
+        // spriteRenderer.sprite = rampageSprite;
+        fishingLine.transform.localPosition = new Vector3(10.84f, 4.64f, 0);
+        model.transform.localPosition = new Vector3(0, 0, 0);
+        model.transform.localScale = new Vector3(-1, 1, 1);
         isRampage = false;
         // 動く方になる?
         speed = defaultSpeed;
@@ -306,21 +342,31 @@ public class FishMove : MonoBehaviour
 
     }
 
+    bool isEscape;
     private void Escape()
     {
-        animator.enabled = true;
-        animator.Play("MoveAnim");
         Vector2 direction = new Vector2(-1, -0.01f).normalized;
         Vector2 diff = direction * escapeSpeed * Time.deltaTime;
         transform.Translate(diff);
-        model.transform.localScale = new Vector3(-1, 1, 1);
         StartCoroutine(EscapeCor());
     }
     IEnumerator EscapeCor()
     {
-        flagSO.SetFlag("GetFish", false);
-        yield return new WaitForSeconds(1f);
-        SceneLoader.instance.UnLoadScene("MainFishing");
+        if (!isEscape)
+        {
+            isEscape = true;
+            fishingLine.SetActive(false);
+            moveFishingLine.SetActive(true);
+            moveFishingLine.AddComponent<Rigidbody2D>().gravityScale = 2;
+            moveFishingLine.transform.parent = transform.parent;
+            animator.enabled = true;
+            animator.Play("MoveAnim");
+            model.transform.localScale = new Vector3(-1, 1, 1);
+
+            flagSO.SetFlag("GetFish", false);
+            yield return new WaitForSeconds(1f);
+            SceneLoader.instance.UnLoadScene("MainFishing");
+        }
     }
 
 
