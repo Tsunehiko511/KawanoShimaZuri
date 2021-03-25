@@ -14,6 +14,7 @@ public class GameEventManager : MonoBehaviour
     [SerializeField] new MoveEvent camera = default;
     [SerializeField] SoundManager sound = default;
     [SerializeField] SelectionEvent select = default;
+    [SerializeField] FlagManager flag = default;
 
     [SerializeField] TextAsset textAsset = default;
     [SerializeField] GameObject titlePanel = default;
@@ -22,6 +23,7 @@ public class GameEventManager : MonoBehaviour
 
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.None;
         // Luaで使うクラスは登録する必要がある
         UserData.RegisterAssembly(typeof(Player).Assembly);
         UserData.RegisterAssembly(typeof(MoveEvent).Assembly);
@@ -29,6 +31,8 @@ public class GameEventManager : MonoBehaviour
         UserData.RegisterAssembly(typeof(MessageManager).Assembly);
         UserData.RegisterAssembly(typeof(SoundManager).Assembly);
         UserData.RegisterAssembly(typeof(SelectionEvent).Assembly);
+        UserData.RegisterAssembly(typeof(FlagManager).Assembly);
+        UserData.RegisterAssembly(typeof(SceneLoader).Assembly);
 
 
         pushStart = false;
@@ -68,11 +72,17 @@ public class GameEventManager : MonoBehaviour
         interpreter.AddHandler("sound", sound);
         interpreter.AddHandler("chocolate", chocolate);
         interpreter.AddHandler("select", select);
+        interpreter.AddHandler("flag", flag);
+        interpreter.AddHandler("sceneLoader", SceneLoader.instance);
         yield return new WaitForSeconds(2);
         
         int? result = null;
         while (interpreter.HasNextScript())
         {
+            if (SceneLoader.instance.currentScene != "MainStory")
+            {
+                yield return null;
+            }
             interpreter.Resume(result);
             yield return interpreter.WaitCoroutine();
             if (interpreter.resultValue != null)

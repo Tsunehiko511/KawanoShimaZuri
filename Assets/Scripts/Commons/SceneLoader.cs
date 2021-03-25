@@ -1,16 +1,19 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using MoonSharp.Interpreter;
 
-public class SceneLoader : MonoBehaviour
+[MoonSharpUserData]
+public class SceneLoader : LuaInterpreterHandlerBase
 {
     [SerializeField] GameObject gameObjects = default;
     public string currentScene;
     string mainScene;
     public static SceneLoader instance;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         if (instance == null)
         {
             instance = this;
@@ -56,6 +59,7 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator LoadSceneCor(string sceneName)
     {
+        flag = false;
         yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         gameObjects.SetActive(false);
     }
@@ -65,5 +69,6 @@ public class SceneLoader : MonoBehaviour
         yield return SceneManager.UnloadSceneAsync(sceneName);
         gameObjects.SetActive(true);
         currentScene = SceneManager.GetActiveScene().name;
+        flag = true;
     }
 }

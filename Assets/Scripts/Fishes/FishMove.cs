@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class FishMove : MonoBehaviour
 {
+    [SerializeField] FlagSO flagSO = default;
     [SerializeField] float defaultSpeed = default; // power
     [SerializeField] float speed = default;
 
@@ -313,7 +314,13 @@ public class FishMove : MonoBehaviour
         Vector2 diff = direction * escapeSpeed * Time.deltaTime;
         transform.Translate(diff);
         model.transform.localScale = new Vector3(-1, 1, 1);
-        Lift();
+        StartCoroutine(EscapeCor());
+    }
+    IEnumerator EscapeCor()
+    {
+        flagSO.SetFlag("GetFish", false);
+        yield return new WaitForSeconds(1f);
+        SceneLoader.instance.UnLoadScene("MainFishing");
     }
 
 
@@ -329,8 +336,9 @@ public class FishMove : MonoBehaviour
 
     IEnumerator LiftCor()
     {
+        state = Status.Stop;
+        flagSO.SetFlag("GetFish", true);
         yield return new WaitForSeconds(1f);
-        string currentName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(currentName);
+        SceneLoader.instance.UnLoadScene("MainFishing");
     }
 }

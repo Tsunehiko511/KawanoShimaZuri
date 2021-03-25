@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff8ea3abc9dcf44c5a5d6b99382c0b48, type: 3}
   m_Name: FlagSO
   m_EditorClassIdentifier: 
+  initFlags:
+  - name: GetFish
+    value: 0

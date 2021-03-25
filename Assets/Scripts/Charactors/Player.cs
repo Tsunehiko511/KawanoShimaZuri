@@ -9,4 +9,8 @@ public class Player : MoveEvent
     //{
     //    MoveTo("right", 10, true);
     //}
+
+    // 移動可能にする
+    // Layを飛ばして宝箱を調べるようにする
+    //
 }

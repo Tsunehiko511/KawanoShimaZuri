@@ -11,6 +11,17 @@ public class FlagSO : ScriptableObject, ISerializationCallbackReceiver
     [NonSerialized]
     public List<Flag> flags = new List<Flag>();
 
+    public bool GetFlag(string flagName)
+    {
+        Flag flag = flags.Find(x => x.name == flagName);
+        return flag.value;
+    }
+
+    public void SetFlag(string flagName, bool value)
+    {
+        flags.Find(x => x.name == flagName).value = value;
+    }
+
     public void OnAfterDeserialize()
     {
         flags.Clear();
@@ -18,7 +29,6 @@ public class FlagSO : ScriptableObject, ISerializationCallbackReceiver
         {
             flags.Add(new Flag(initFlags[i]));
         }
-        Debug.Log("aaa");
     }
 
     public void OnBeforeSerialize()

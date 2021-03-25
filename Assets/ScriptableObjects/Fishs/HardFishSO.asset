@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d49b9d4b9d834008a25882b82fd470e, type: 3}
   m_Name: HardFishSO
   m_EditorClassIdentifier: 
-  defaultSpeed: 55
-  defaultPullSpeed: 32
+  defaultSpeed: 43
+  defaultPullSpeed: 50
+  escapeRate: 20
